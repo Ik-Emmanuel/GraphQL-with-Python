@@ -59,6 +59,40 @@ class CategoryMutation(graphene.Mutation):
 
         return CategoryMutation(category=category)
 
+class CategoryUpdate(graphene.Mutation):
+    #used to defined the resposne of the mutation
+    category = graphene.Field(CategoryType)
+
+    class Arguments:
+        id =  graphene.ID()
+        name = graphene.String(required=True) 
+
+    @classmethod
+    def mutate(cls, root, info, name, id):
+        category = Category.objects.get(id=id)
+        category.name = name
+        category.save()
+
+        return CategoryMutation(category=category)
+
+
+class CategoryDelete(graphene.Mutation):
+    #used to defined the resposne of the mutation
+    category = graphene.String()
+
+    class Arguments:
+        id =  graphene.ID()
+
+    @classmethod
+    def mutate(cls, root, info, id):
+        category = Category.objects.get(id=id)
+        category.delete()
+
+
+        return f"Category with ID:{id}, has been deleted"
+
+
+
 
 
 class QuizzesMutation(graphene.Mutation):
@@ -79,6 +113,8 @@ class QuizzesMutation(graphene.Mutation):
 
 class Mutation(graphene.ObjectType):
     create_category = CategoryMutation.Field()
+    update_category = CategoryUpdate.Field()
+    delete_category = CategoryDelete.Field()
     create_quizzes = QuizzesMutation.Field()
 
 
@@ -134,7 +170,13 @@ schema = graphene.Schema(query=Query, mutation=Mutation)
 #   }
 # }
 
-
+# mutation{
+#   updateCategory(id: 8, name: "Music Production"){
+#     category{
+#       name
+#     }
+#   }
+# }
 
 
 # query{
